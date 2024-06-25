@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type AuthClient interface {
 	Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterRes, error)
 	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginRes, error)
-	IsAdmin(ctx context.Context, in *IsAdminReq, opts ...grpc.CallOption) (*IsAdminRes, error)
+	User(ctx context.Context, in *IsUserReq, opts ...grpc.CallOption) (*IsUserRes, error)
 }
 
 type authClient struct {
@@ -53,9 +53,9 @@ func (c *authClient) Login(ctx context.Context, in *LoginReq, opts ...grpc.CallO
 	return out, nil
 }
 
-func (c *authClient) IsAdmin(ctx context.Context, in *IsAdminReq, opts ...grpc.CallOption) (*IsAdminRes, error) {
-	out := new(IsAdminRes)
-	err := c.cc.Invoke(ctx, "/auth.Auth/IsAdmin", in, out, opts...)
+func (c *authClient) User(ctx context.Context, in *IsUserReq, opts ...grpc.CallOption) (*IsUserRes, error) {
+	out := new(IsUserRes)
+	err := c.cc.Invoke(ctx, "/auth.Auth/User", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (c *authClient) IsAdmin(ctx context.Context, in *IsAdminReq, opts ...grpc.C
 type AuthServer interface {
 	Register(context.Context, *RegisterReq) (*RegisterRes, error)
 	Login(context.Context, *LoginReq) (*LoginRes, error)
-	IsAdmin(context.Context, *IsAdminReq) (*IsAdminRes, error)
+	User(context.Context, *IsUserReq) (*IsUserRes, error)
 	mustEmbedUnimplementedAuthServer()
 }
 
@@ -82,8 +82,8 @@ func (UnimplementedAuthServer) Register(context.Context, *RegisterReq) (*Registe
 func (UnimplementedAuthServer) Login(context.Context, *LoginReq) (*LoginRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAuthServer) IsAdmin(context.Context, *IsAdminReq) (*IsAdminRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method IsAdmin not implemented")
+func (UnimplementedAuthServer) User(context.Context, *IsUserReq) (*IsUserRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method User not implemented")
 }
 func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
 
@@ -134,20 +134,20 @@ func _Auth_Login_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Auth_IsAdmin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IsAdminReq)
+func _Auth_User_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IsUserReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServer).IsAdmin(ctx, in)
+		return srv.(AuthServer).User(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/auth.Auth/IsAdmin",
+		FullMethod: "/auth.Auth/User",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServer).IsAdmin(ctx, req.(*IsAdminReq))
+		return srv.(AuthServer).User(ctx, req.(*IsUserReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -168,8 +168,8 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Auth_Login_Handler,
 		},
 		{
-			MethodName: "IsAdmin",
-			Handler:    _Auth_IsAdmin_Handler,
+			MethodName: "User",
+			Handler:    _Auth_User_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
